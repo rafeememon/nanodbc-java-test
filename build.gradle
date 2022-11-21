@@ -1,0 +1,106 @@
+// https://community.sonarsource.com/t/error-locking-filebasedconfig-root-config-jgit-config-failed-after-5-retries
+buildscript {
+  configurations.classpath {
+    resolutionStrategy {
+      force 'org.eclipse.jgit:org.eclipse.jgit:5.13.0.202109080827-r'
+    }
+  }
+}
+
+plugins {
+  id 'com.palantir.git-version' version "${gitVersionVersion}"
+  // id 'com.diffplug.spotless' version "${spotlessVersion}"
+  id 'java-library'
+  id 'eclipse'
+  id 'maven-publish'
+  id 'org.bytedeco.gradle-javacpp-build' version "${javacppVersion}"
+}
+
+apply from: "${rootDir}/gradle/s3.gradle"
+// apply from: "${rootDir}/gradle/spotless.gradle"
+
+group = 'io.nanodbc'
+version = gitVersion()
+
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+repositories {
+  mavenCentral()
+}
+
+dependencyLocking {
+  lockAllConfigurations()
+}
+
+dependencies {
+  implementation group: 'org.bytedeco', name: 'javacpp', version: javacppVersion
+}
+
+java {
+  withSourcesJar()
+}
+
+jar {
+  // Don't include unnecessary compiler outputs.
+  // exclude '**/*.exp', '**/*.lib', '**/*.obj'
+}
+
+publishing {
+  publications {
+    library(MavenPublication) {
+      from components.java
+    }
+  }
+}
+
+def nanodbcSrcPath = "${projectDir}\\nanodbc"
+def cmakeBuildPath = "${buildDir}\\cmake"
+def msbuildBuildPath = "${buildDir}\\msbuild"
+
+task cmakeNanodbc(type: Exec) {
+  inputs.dir nanodbcSrcPath
+  outputs.dir cmakeBuildPath
+
+  workingDir cmakeBuildPath
+  commandLine 'cmake', nanodbcSrcPath,
+    '-DNANODBC_DISABLE_ASYNC=ON',
+    '-DNANODBC_DISABLE_EXAMPLES=ON',
+    '-DNANODBC_DISABLE_INSTALL=ON',
+    '-DNANODBC_DISABLE_TESTS=ON',
+    '-DNANODBC_ENABLE_UNICODE=ON'
+    '-DNANODBC_USE_IODBC_WIDE_STRINGS=ON'
+}
+
+task msbuildNanodbc(type: Exec) {
+  dependsOn cmakeNanodbc
+
+  inputs.dir nanodbcSrcPath
+  inputs.dir cmakeBuildPath
+  outputs.dir msbuildBuildPath
+
+  workingDir cmakeBuildPath
+  commandLine 'msbuild', 'ALL_BUILD.vcxproj', "/p:OutDir=${msbuildBuildPath}\\;Configuration=Release"
+}
+
+tasks.withType(org.bytedeco.gradle.javacpp.BuildTask) {
+  dependsOn msbuildNanodbc
+
+  includePath = ["${projectDir}/nanodbc/nanodbc"]
+  linkPath = [msbuildBuildPath]
+  outputName = 'jninanodbc'
+  clean = true
+  compilerOptions = [
+    '/D', 'NANODBC_DISABLE_ASYNC=ON',
+    '/D', 'NANODBC_DISABLE_EXAMPLES=ON',
+    '/D', 'NANODBC_DISABLE_INSTALL=ON',
+    '/D', 'NANODBC_DISABLE_TESTS=ON',
+    '/D', 'NANODBC_ENABLE_UNICODE=ON',
+    '/D', 'NANODBC_USE_IODBC_WIDE_STRINGS=ON',
+    '/D', '_CRT_SECURE_NO_WARNINGS=ON'
+  ]
+}
+
+javacppBuildParser {
+  outputDirectory = file("${buildDir}/generated/sources/javacpp/")
+}

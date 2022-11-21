@@ -1,0 +1,7 @@
+spotless {
+  lineEndings 'WINDOWS'
+
+  java {
+    eclipse().configFile "${rootDir}/gradle/eclipse-java-google-style-rafee.xml"
+  }
+}
