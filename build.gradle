@@ -57,6 +57,15 @@ publishing {
 def nanodbcSrcPath = "${projectDir}\\nanodbc"
 def cmakeBuildPath = "${buildDir}\\cmake"
 def msbuildBuildPath = "${buildDir}\\msbuild"
+def javacppGeneratedPath = "${buildDir}\\generated\\sources\\javacpp"
+
+sourceSets {
+  main {
+    java {
+      srcDirs += [javacppGeneratedPath]
+    }
+  }
+}
 
 task cmakeNanodbc(type: Exec) {
   inputs.dir nanodbcSrcPath
@@ -69,7 +78,6 @@ task cmakeNanodbc(type: Exec) {
     '-DNANODBC_DISABLE_INSTALL=ON',
     '-DNANODBC_DISABLE_TESTS=ON',
     '-DNANODBC_ENABLE_UNICODE=ON'
-    '-DNANODBC_USE_IODBC_WIDE_STRINGS=ON'
 }
 
 task msbuildNanodbc(type: Exec) {
@@ -80,27 +88,24 @@ task msbuildNanodbc(type: Exec) {
   outputs.dir msbuildBuildPath
 
   workingDir cmakeBuildPath
-  commandLine 'msbuild', 'ALL_BUILD.vcxproj', "/p:OutDir=${msbuildBuildPath}\\;Configuration=Release"
+  commandLine 'msbuild', 'ALL_BUILD.vcxproj', '/p:NANODBC_USE_IODBC_WIDE_STRINGS=', "/p:OutDir=${msbuildBuildPath}\\;Configuration=Release"
 }
 
 tasks.withType(org.bytedeco.gradle.javacpp.BuildTask) {
   dependsOn msbuildNanodbc
 
-  includePath = ["${projectDir}/nanodbc/nanodbc"]
+  includePath = ["${projectDir}/nanodbc"]
   linkPath = [msbuildBuildPath]
-  outputName = 'jninanodbc'
+  // outputName = 'jninanodbc'
   clean = true
   compilerOptions = [
-    '/D', 'NANODBC_DISABLE_ASYNC=ON',
-    '/D', 'NANODBC_DISABLE_EXAMPLES=ON',
-    '/D', 'NANODBC_DISABLE_INSTALL=ON',
-    '/D', 'NANODBC_DISABLE_TESTS=ON',
-    '/D', 'NANODBC_ENABLE_UNICODE=ON',
-    '/D', 'NANODBC_USE_IODBC_WIDE_STRINGS=ON',
-    '/D', '_CRT_SECURE_NO_WARNINGS=ON'
+    '/D', 'NANODBC_DISABLE_ASYNC',
+    '/D', 'NANODBC_ENABLE_UNICODE',
+    '/D', 'NANODBC_USE_IODBC_WIDE_STRINGS',
+    '/D', '_CRT_SECURE_NO_WARNINGS'
   ]
 }
 
 javacppBuildParser {
-  outputDirectory = file("${buildDir}/generated/sources/javacpp/")
+  outputDirectory = file(javacppGeneratedPath)
 }
