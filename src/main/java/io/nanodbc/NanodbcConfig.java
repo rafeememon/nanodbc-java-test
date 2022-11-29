@@ -10,7 +10,7 @@ import org.bytedeco.javacpp.tools.InfoMapper;
         value = {
                 @Platform(
                         include = {"nanodbc/nanodbc.h"},
-                        link = {"nanodbc"})},
+                        link = {"nanodbc", "odbc32"})},
         target = "io.nanodbc.NanodbcNative")
 public class NanodbcConfig implements InfoMapper {
 
@@ -20,11 +20,13 @@ public class NanodbcConfig implements InfoMapper {
                 .put(new Info("!defined(NANODBC_DISABLE_ASYNC)").define(false))
                 .put(new Info("NANODBC_DISABLE_ASYNC").define())
                 .put(new Info("NANODBC_ENABLE_UNICODE").define())
-                .put(new Info("NANODBC_USE_IODBC_WIDE_STRINGS").define())
+                .put(new Info("_MSC_VER").define())
                 // https://github.com/bytedeco/javacpp/wiki/Mapping-Recipes#ignoring-attributes-and-macros
                 .put(new Info("NANODBC_THROW_NO_SOURCE_LOCATION").cppTypes().annotations())
                 // https://github.com/bytedeco/javacpp/wiki/Mapping-Recipes#redefining-the-code-of-a-macro
                 .put(new Info("NANODBC_DEPRECATED").cppText("#define NANODBC_DEPRECATED"))
+
+                .put(new Info("nanodbc::string").cppTypes("std::wstring").annotations("@StdWString"))
 
                 // Connection
 
@@ -42,8 +44,7 @@ public class NanodbcConfig implements InfoMapper {
                 .put(new Info("nanodbc::statement::bind<nanodbc::date>").javaNames("bindDate"))
                 .put(new Info("nanodbc::statement::bind<nanodbc::time>").javaNames("bindTime"))
                 .put(new Info("nanodbc::statement::bind<nanodbc::timestamp>").javaNames("bindTimestamp"))
-                // std::wide_string::value_type => char32_t
-                .put(new Info("nanodbc::statement::bind<char32_t>").javaNames("bindString"))
+                .put(new Info("nanodbc::statement::bind<wchar_t>").javaNames("bindString"))
 
                 // Result
 
@@ -58,8 +59,7 @@ public class NanodbcConfig implements InfoMapper {
                 .put(new Info("nanodbc::result::get<nanodbc::date>").javaNames("getDate"))
                 .put(new Info("nanodbc::result::get<nanodbc::time>").javaNames("getTime"))
                 .put(new Info("nanodbc::result::get<nanodbc::timestamp>").javaNames("getTimestamp"))
-                // std::wide_string => std::u32string
-                .put(new Info("nanodbc::result::get<std::u32string>").javaNames("getString"))
+                .put(new Info("nanodbc::result::get<std::wstring>").javaNames("getString"))
 
                 // Transaction
 
@@ -83,13 +83,11 @@ public class NanodbcConfig implements InfoMapper {
                 .put(new Info("nanodbc::database_error").pointerTypes("DatabaseError"))
 
                 .put(new Info("std::vector<uint8_t>").pointerTypes("UInt8Vector").define())
-                .put(new Info("std::list<std::u32string>").pointerTypes("U32StringList").define())
+                .put(new Info("std::list<std::wstring>").pointerTypes("StringList").define())
                 .put(new Info("std::list<nanodbc::datasource>").pointerTypes("DatasourceList").define())
                 .put(new Info("std::list<nanodbc::driver>").pointerTypes("DriverList").define())
                 .put(new Info("std::list<nanodbc::driver::attribute>").pointerTypes("DriverAttributeList").define())
                 .put(new Info("std::runtime_error").cast().pointerTypes("Pointer"));
     }
-
-
 
 }

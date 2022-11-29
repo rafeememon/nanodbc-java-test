@@ -88,24 +88,23 @@ task msbuildNanodbc(type: Exec) {
   outputs.dir msbuildBuildPath
 
   workingDir cmakeBuildPath
-  commandLine 'msbuild', 'ALL_BUILD.vcxproj', '/p:NANODBC_USE_IODBC_WIDE_STRINGS=', "/p:OutDir=${msbuildBuildPath}\\;Configuration=Release"
+  commandLine 'msbuild', 'ALL_BUILD.vcxproj', "/p:OutDir=${msbuildBuildPath}\\;Configuration=Release"
 }
 
 tasks.withType(org.bytedeco.gradle.javacpp.BuildTask) {
   dependsOn msbuildNanodbc
 
-  includePath = ["${projectDir}/nanodbc"]
+  includePath = [nanodbcSrcPath]
   linkPath = [msbuildBuildPath]
-  // outputName = 'jninanodbc'
   clean = true
   compilerOptions = [
     '/D', 'NANODBC_DISABLE_ASYNC',
     '/D', 'NANODBC_ENABLE_UNICODE',
-    '/D', 'NANODBC_USE_IODBC_WIDE_STRINGS',
     '/D', '_CRT_SECURE_NO_WARNINGS'
   ]
 }
 
 javacppBuildParser {
+  classOrPackageNames = ['io.nanodbc.NanodbcConfig']
   outputDirectory = file(javacppGeneratedPath)
 }
