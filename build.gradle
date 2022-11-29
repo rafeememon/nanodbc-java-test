@@ -72,7 +72,8 @@ task cmakeNanodbc(type: Exec) {
   outputs.dir cmakeBuildPath
 
   workingDir cmakeBuildPath
-  commandLine 'cmake', nanodbcSrcPath,
+  commandLine 'cmake',
+    nanodbcSrcPath,
     '-DNANODBC_DISABLE_ASYNC=ON',
     '-DNANODBC_DISABLE_EXAMPLES=ON',
     '-DNANODBC_DISABLE_INSTALL=ON',
@@ -88,7 +89,10 @@ task msbuildNanodbc(type: Exec) {
   outputs.dir msbuildBuildPath
 
   workingDir cmakeBuildPath
-  commandLine 'msbuild', 'ALL_BUILD.vcxproj', "/p:OutDir=${msbuildBuildPath}\\;Configuration=Release"
+  commandLine 'msbuild',
+    'nanodbc.vcxproj',
+    "/p:OutDir=${msbuildBuildPath}\\",
+    '/p:Configuration=Release'
 }
 
 tasks.withType(org.bytedeco.gradle.javacpp.BuildTask) {

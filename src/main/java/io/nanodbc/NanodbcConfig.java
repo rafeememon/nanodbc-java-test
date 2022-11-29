@@ -17,8 +17,8 @@ public class NanodbcConfig implements InfoMapper {
     @Override
     public void map(InfoMap infoMap) {
         infoMap
-                .put(new Info("!defined(NANODBC_DISABLE_ASYNC)").define(false))
                 .put(new Info("NANODBC_DISABLE_ASYNC").define())
+                .put(new Info("!defined(NANODBC_DISABLE_ASYNC)").define(false))
                 .put(new Info("NANODBC_ENABLE_UNICODE").define())
                 .put(new Info("_MSC_VER").define())
                 // https://github.com/bytedeco/javacpp/wiki/Mapping-Recipes#ignoring-attributes-and-macros
