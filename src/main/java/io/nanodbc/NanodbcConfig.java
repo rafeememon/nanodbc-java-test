@@ -9,6 +9,7 @@ import org.bytedeco.javacpp.tools.InfoMapper;
 @Properties(
         value = {
                 @Platform(
+                        value = "windows",
                         include = {"nanodbc/nanodbc.h"},
                         link = {"nanodbc", "odbc32"})},
         target = "io.nanodbc.NanodbcNative")

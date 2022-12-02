@@ -34,24 +34,7 @@ dependencyLocking {
 }
 
 dependencies {
-  implementation group: 'org.bytedeco', name: 'javacpp', version: javacppVersion
-}
-
-java {
-  withSourcesJar()
-}
-
-jar {
-  // Don't include unnecessary compiler outputs.
-  // exclude '**/*.exp', '**/*.lib', '**/*.obj'
-}
-
-publishing {
-  publications {
-    library(MavenPublication) {
-      from components.java
-    }
-  }
+  api group: 'org.bytedeco', name: 'javacpp', version: javacppVersion
 }
 
 def nanodbcSrcPath = "${projectDir}\\nanodbc"
@@ -111,4 +94,33 @@ tasks.withType(org.bytedeco.gradle.javacpp.BuildTask) {
 javacppBuildParser {
   classOrPackageNames = ['io.nanodbc.NanodbcConfig']
   outputDirectory = file(javacppGeneratedPath)
+}
+
+// Add implicit dependency
+tasks.named('javacppBuildCommand') {
+  dependsOn 'javacppPomProperties'
+}
+
+// Exclude unnecessary compiler outputs
+tasks.named('javacppJar') {
+  exclude '**/*.exp', '**/*.lib', '**/*.obj'
+}
+
+task sourcesJar(type: Jar) {
+  duplicatesStrategy = 'exclude'
+  classifier = 'sources'
+  from sourceSets.main.allSource
+}
+
+java {
+  withSourcesJar()
+}
+
+publishing {
+  publications {
+    library(MavenPublication) {
+      from components.java
+      artifact javacppJar
+    }
+  }
 }
