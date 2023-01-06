@@ -79,8 +79,6 @@ task msbuildNanodbc(type: Exec) {
 }
 
 tasks.withType(org.bytedeco.gradle.javacpp.BuildTask) {
-  dependsOn msbuildNanodbc
-
   includePath = [nanodbcSrcPath]
   linkPath = [msbuildBuildPath]
   clean = true
@@ -96,14 +94,13 @@ javacppBuildParser {
   outputDirectory = file(javacppGeneratedPath)
 }
 
+tasks.named('javacppBuildCompiler') {
+  dependsOn 'msbuildNanodbc'
+}
+
 // Add implicit dependency
 tasks.named('javacppBuildCommand') {
   dependsOn 'javacppPomProperties'
-}
-
-// Exclude unnecessary compiler outputs
-tasks.named('javacppJar') {
-  exclude '**/*.exp', '**/*.lib', '**/*.obj'
 }
 
 task sourcesJar(type: Jar) {
@@ -116,11 +113,20 @@ java {
   withSourcesJar()
 }
 
+task bundledJar(type: Jar) {
+  with jar
+  with javacppJar
+  classifier = 'bundle'
+  exclude '**/*.exp', '**/*.lib', '**/*.obj'
+}
+
 publishing {
   publications {
     library(MavenPublication) {
       from components.java
-      artifact javacppJar
+      // artifact javacppJar
+      artifact bundledJar
+      // artifact sourcesJar
     }
   }
 }
