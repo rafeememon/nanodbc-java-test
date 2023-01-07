@@ -60,7 +60,7 @@ public class NanodbcConfig implements InfoMapper {
                 .put(new Info("nanodbc::result::get<nanodbc::date>").javaNames("getDate"))
                 .put(new Info("nanodbc::result::get<nanodbc::time>").javaNames("getTime"))
                 .put(new Info("nanodbc::result::get<nanodbc::timestamp>").javaNames("getTimestamp"))
-                .put(new Info("nanodbc::result::get<std::wstring>").javaNames("getString"))
+                .put(new Info("nanodbc::result::get<wchar_t>").javaNames("getString"))
 
                 // Transaction
 
