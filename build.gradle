@@ -113,20 +113,11 @@ java {
   withSourcesJar()
 }
 
-task bundledJar(type: Jar) {
-  with jar
-  with javacppJar
-  classifier = 'bundle'
-  exclude '**/*.exp', '**/*.lib', '**/*.obj'
-}
-
 publishing {
   publications {
     library(MavenPublication) {
       from components.java
-      // artifact javacppJar
-      artifact bundledJar
-      // artifact sourcesJar
+      artifact javacppJar
     }
   }
 }
