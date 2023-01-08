@@ -81,7 +81,7 @@ task msbuildNanodbc(type: Exec) {
 tasks.withType(org.bytedeco.gradle.javacpp.BuildTask) {
   includePath = [nanodbcSrcPath]
   linkPath = [msbuildBuildPath]
-  clean = true
+  // clean = true
   compilerOptions = [
     '/D', 'NANODBC_DISABLE_ASYNC',
     '/D', 'NANODBC_ENABLE_UNICODE',
