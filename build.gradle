@@ -113,6 +113,10 @@ java {
   withSourcesJar()
 }
 
+javacppJar {
+  exclude '**/*.exp', '**/*.lib', '**/*.obj'
+}
+
 publishing {
   publications {
     library(MavenPublication) {
