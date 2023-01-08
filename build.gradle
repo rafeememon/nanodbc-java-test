@@ -40,12 +40,12 @@ dependencies {
 def nanodbcSrcPath = "${projectDir}\\nanodbc"
 def cmakeBuildPath = "${buildDir}\\cmake"
 def msbuildBuildPath = "${buildDir}\\msbuild"
-def javacppGeneratedPath = "${buildDir}\\generated\\sources\\javacpp"
+// def javacppGeneratedPath = "${buildDir}\\generated\\sources\\javacpp"
 
 sourceSets {
   main {
     java {
-      srcDirs += [javacppGeneratedPath]
+      // srcDirs += [javacppGeneratedPath]
     }
   }
 }
@@ -90,8 +90,8 @@ tasks.withType(org.bytedeco.gradle.javacpp.BuildTask) {
 }
 
 javacppBuildParser {
-  classOrPackageNames = ['io.nanodbc.NanodbcConfig']
-  outputDirectory = file(javacppGeneratedPath)
+  classOrPackageNames = ['io.nanodbc.javacpp.NanodbcConfig']
+  // outputDirectory = file(javacppGeneratedPath)
 }
 
 tasks.named('javacppBuildCompiler') {

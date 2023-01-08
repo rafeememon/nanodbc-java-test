@@ -1,4 +1,4 @@
-package io.nanodbc;
+package io.nanodbc.javacpp;
 
 import org.bytedeco.javacpp.annotation.Platform;
 import org.bytedeco.javacpp.annotation.Properties;
@@ -12,7 +12,7 @@ import org.bytedeco.javacpp.tools.InfoMapper;
                         value = "windows",
                         include = {"nanodbc/nanodbc.h"},
                         link = {"nanodbc", "odbc32"})},
-        target = "io.nanodbc.NanodbcNative")
+        target = "io.nanodbc.javacpp.generated.NanodbcNative")
 public class NanodbcConfig implements InfoMapper {
 
     @Override
